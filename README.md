@@ -2,7 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) This project is the frontend implementation of a doctor appointment booking application, built using modern web technologies. It provides a user-friendly interface for scheduling appointments and managing patient information.
 
-![Project Screenshot](https://www.flaticon.com/free-icon/calendar-with-check_1234567.png) ## Technologies Used
+![Project Screenshot](https://via.placeholder.com/800x400/28a745/FFFFFF?text=Doctor+Appointment+Frontend)
+ ## Technologies Used
 
 *   **React:** A JavaScript library for building user interfaces.
 *   **Vite:** A fast build tool and development server.
