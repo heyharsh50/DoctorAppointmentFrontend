@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) This project is the frontend implementation of a doctor appointment booking application, built using modern web technologies. It provides a user-friendly interface for scheduling appointments and managing patient information.
 
-![Project Screenshot](./images/12628332_5024768.svg)
+![Project Screenshot](./assets/12628332_5024768.svg)
  ## Technologies Used
 
 *   **React:** A JavaScript library for building user interfaces.
@@ -28,13 +28,13 @@ To run this project locally, you'll need Node.js and a package manager (npm, yar
 1.  Clone the repository:
 
     ```bash
-    git clone <repository_url>
+    git clone https://github.com/heyharsh50/DoctorAppointmentFrontend.git
     ```
 
 2.  Navigate to the project directory:
 
     ```bash
-    cd <project_directory>
+    cd DoctorAppointmentFrontend
     ```
 
 3.  Install dependencies:
