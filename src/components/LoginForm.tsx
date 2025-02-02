@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -9,14 +10,26 @@ const LoginForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
+    
+    // Check if it's an admin login
+    if (formData.email === 'admin@example.com' && formData.password === 'admin123') {
+      localStorage.setItem('userRole', 'admin');
+      localStorage.setItem('isLoggedIn', 'true');
+      navigate('/admin/dashboard');
+      return;
+    }
+
+    // Handle regular user login here
+    localStorage.setItem('userRole', 'user');
+    localStorage.setItem('isLoggedIn', 'true');
+    navigate('/');
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Login</h2>
-        <p className="text-gray-600 mb-6">Please login to book appointment</p>
+        <p className="text-gray-600 mb-6">Please login to continue</p>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -29,6 +42,7 @@ const LoginForm = () => {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
             />
           </div>
 
@@ -42,6 +56,7 @@ const LoginForm = () => {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
             />
           </div>
 
@@ -56,7 +71,7 @@ const LoginForm = () => {
         <p className="mt-4 text-center text-sm text-gray-600">
           Don't have an account?{' '}
           <Link to="/register" className="text-blue-600 hover:text-blue-500">
-            Login here
+            Register here
           </Link>
         </p>
       </div>

@@ -1,39 +1,118 @@
+import React from 'react';
+import { Star, MapPin, GraduationCap, DollarSign, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import type { Doctor } from '../store/doctorsStore';
+
 interface DoctorCardProps {
-  name: string;
-  specialty: string;
-  imageUrl: string;
-  rating: number;
-  available: boolean;
+  doctor: Doctor;
 }
 
-const DoctorCard = ({ name, specialty, imageUrl, rating, available }: DoctorCardProps) => {
+const DoctorCard: React.FC<DoctorCardProps> = ({ doctor }) => {
+  const navigate = useNavigate();
+
+  const handleBookAppointment = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (doctor.available && doctor.id) {
+      navigate(`/book-appointment/${doctor.id}`);
+    }
+  };
+
+  const handleCardClick = () => {
+    if (doctor.id) {
+      navigate(`/doctor/${doctor.id}`);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      <img src={imageUrl} alt={name} className="w-full h-48 object-cover" />
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
-        <p className="text-gray-600">{specialty}</p>
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <svg
-                key={i}
-                className={`h-5 w-5 ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            ))}
+    <div 
+      onClick={handleCardClick}
+      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+    >
+      <div className="relative">
+        <img
+          src={doctor.imageUrl || 'https://via.placeholder.com/400x300?text=Doctor'}
+          alt={doctor.name}
+          className="w-full h-48 object-cover"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = 'https://via.placeholder.com/400x300?text=Doctor';
+          }}
+        />
+        <div className="absolute top-4 right-4">
+          <div className="flex items-center space-x-2">
+            <Clock className={`w-4 h-4 ${doctor.available ? 'text-green-600' : 'text-red-600'}`} />
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              doctor.available 
+                ? 'bg-green-100 text-green-800 border border-green-200' 
+                : 'bg-red-100 text-red-800 border border-red-200'
+            }`}>
+              {doctor.available ? 'Available Now' : 'Busy'}
+            </span>
           </div>
-          <span className={`px-3 py-1 rounded-full text-sm ${
-            available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {available ? 'Available' : 'Busy'}
-          </span>
         </div>
-        <button className="mt-4 w-full bg-blue-900 text-white py-2 rounded-md hover:bg-blue-800 transition-colors">
-          Book Appointment
+      </div>
+      
+      <div className="p-5">
+        {/* Doctor Name and Rating */}
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">Dr. {doctor.name}</h3>
+            <p className="text-md font-medium text-blue-600 mt-1">{doctor.specialty}</p>
+          </div>
+          <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-lg">
+            <Star className="w-5 h-5 text-yellow-400 fill-current" />
+            <span className="ml-1 text-sm font-medium text-gray-700">{doctor.rating}</span>
+          </div>
+        </div>
+
+        {/* Info Grid */}
+        <div className="space-y-3">
+          {doctor.location && (
+            <div className="flex items-center text-gray-600">
+              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-4 h-4 text-blue-600" />
+              </div>
+              <span className="ml-3 text-sm">
+                {doctor.location}
+              </span>
+            </div>
+          )}
+          
+          {doctor.experience && (
+            <div className="flex items-center text-gray-600">
+              <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <GraduationCap className="w-4 h-4 text-green-600" />
+              </div>
+              <span className="ml-3 text-sm">
+                {doctor.experience} Years Experience
+              </span>
+            </div>
+          )}
+          
+          {doctor.fee && (
+            <div className="flex items-center text-gray-600">
+              <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <DollarSign className="w-4 h-4 text-purple-600" />
+              </div>
+              <span className="ml-3 text-sm">
+                Consultation Fee: {doctor.fee}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        {/* Book Appointment Button */}
+        <button 
+          onClick={handleBookAppointment}
+          disabled={!doctor.available}
+          className={`w-full mt-6 py-3 px-4 rounded-lg font-medium flex items-center justify-center space-x-2 ${
+            doctor.available
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          } transition-colors`}
+        >
+          <Clock className="w-5 h-5" />
+          <span>{doctor.available ? 'Book Appointment' : 'Not Available'}</span>
         </button>
       </div>
     </div>

@@ -1,100 +1,40 @@
-import { useState } from 'react';
-import { Search, MapPin, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Filter } from 'lucide-react';
 import DoctorCard from './DoctorCard';
-
-interface Doctor {
-  name: string;
-  specialty: string;
-  imageUrl: string;
-  rating: number;
-  available: boolean;
-  location?: string;
-  experience?: string;
-  fee?: string;
-}
-
-const doctors: Doctor[] = [
-  {
-    name: "Dr. Sarah Johnson",
-    specialty: "Cardiologist",
-    imageUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80",
-    rating: 5,
-    available: true,
-    location: "New York",
-    experience: "15 years",
-    fee: "₹30"
-  },
-  {
-    name: "Dr. Michael Chen",
-    specialty: "Neurologist",
-    imageUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80",
-    rating: 4,
-    available: true,
-    location: "Los Angeles",
-    experience: "10 years",
-    fee: "₹25"
-  },
-  {
-    name: "Dr. Emily Brown",
-    specialty: "Pediatrician",
-    imageUrl: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80",
-    rating: 5,
-    available: false,
-    location: "Chicago",
-    experience: "8 years",
-    fee: "₹20"
-  },
-  {
-    name: "Dr. David Wilson",
-    specialty: "Dermatologist",
-    imageUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80",
-    rating: 5,
-    available: true,
-    location: "Boston",
-    experience: "12 years",
-    fee: "₹35"
-  },
-  {
-    name: "Dr. Lisa Anderson",
-    specialty: "Orthopedic",
-    imageUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80",
-    rating: 4,
-    available: true,
-    location: "Seattle",
-    experience: "14 years",
-    fee: "₹40"
-  },
-  {
-    name: "Dr. James Taylor",
-    specialty: "General Physician",
-    imageUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80",
-    rating: 5,
-    available: true,
-    location: "Miami",
-    experience: "7 years",
-    fee: "₹15"
-  }
-];
-
-const specialties = [
-  "All Specialties",
-  "Cardiologist",
-  "Neurologist",
-  "Pediatrician",
-  "Dermatologist",
-  "Orthopedic",
-  "General Physician"
-];
+import { getDoctors, getSpecialties, type Doctor } from '../store/doctorsStore';
 
 const FindDoctors = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('All Specialties');
   const [showFilters, setShowFilters] = useState(false);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const specialties = getSpecialties();
+
+  // Refresh doctors list periodically
+  useEffect(() => {
+    // Initial load
+    setDoctors(getDoctors());
+
+    // Set up periodic refresh
+    const refreshInterval = setInterval(() => {
+      setDoctors(getDoctors());
+    }, 5000); // Refresh every 5 seconds
+
+    // Cleanup on unmount
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   const filteredDoctors = doctors.filter(doctor => {
-    const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSpecialty = selectedSpecialty === 'All Specialties' || doctor.specialty === selectedSpecialty;
+    const matchesSearch = 
+      doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doctor.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      false;
+    
+    const matchesSpecialty = 
+      selectedSpecialty === 'All Specialties' || 
+      doctor.specialty === selectedSpecialty;
+
     return matchesSearch && matchesSpecialty;
   });
 
@@ -114,17 +54,9 @@ const FindDoctors = () => {
               <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search doctors, specialties..."
+                placeholder="Search doctors, specialties, locations..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div className="flex-1 relative">
-              <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Location"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -140,20 +72,21 @@ const FindDoctors = () => {
           {/* Filters */}
           {showFilters && (
             <div className="mt-4 pt-4 border-t">
-              <div className="flex flex-wrap gap-2">
-                {specialties.map((specialty) => (
-                  <button
-                    key={specialty}
-                    onClick={() => setSelectedSpecialty(specialty)}
-                    className={`px-4 py-2 rounded-full text-sm ${
-                      selectedSpecialty === specialty
-                        ? 'bg-blue-900 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {specialty}
-                  </button>
-                ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Specialty
+                </label>
+                <select
+                  value={selectedSpecialty}
+                  onChange={(e) => setSelectedSpecialty(e.target.value)}
+                  className="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {specialties.map((specialty) => (
+                    <option key={specialty} value={specialty}>
+                      {specialty}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           )}
@@ -161,8 +94,8 @@ const FindDoctors = () => {
 
         {/* Results Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredDoctors.map((doctor, index) => (
-            <DoctorCard key={index} {...doctor} />
+          {filteredDoctors.map((doctor) => (
+            <DoctorCard key={doctor.id} doctor={doctor} />
           ))}
         </div>
 
